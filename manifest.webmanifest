@@ -1,0 +1,11 @@
+{
+  "name": "إدارة مرتبي",
+  "short_name": "مرتبي",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7f6",
+  "theme_color": "#176b5b",
+  "icons": []
+}

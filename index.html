@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#176b5b">
+<link rel="manifest" href="manifest.webmanifest">
+<title>إدارة مرتبي</title>
+<style>
+:root{--green:#176b5b;--mint:#e8f4ef;--bg:#f5f7f6;--ink:#1f2d2a;--muted:#71807b;--red:#b94a48;--line:#e4eae7;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Tahoma,Arial,sans-serif}
+header{background:var(--green);color:#fff;padding:22px 18px 25px;border-radius:0 0 22px 22px}
+header .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+h1{font-size:22px;margin:0}header p{margin:7px 0 0;color:#d9eee7;font-size:13px}
+main{max-width:850px;margin:auto;padding:16px}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:-4px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:0 2px 8px #18352b08}
+.card small{color:var(--muted);font-size:12px}.amount{font-weight:bold;font-size:22px;margin-top:8px;direction:ltr;text-align:right}
+.green{color:var(--green)}.red{color:var(--red)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}
+.panel h2{font-size:16px;margin:0 0 14px}
+.tabs{display:flex;gap:8px;overflow:auto;margin:16px 0}
+button,.tab{border:0;border-radius:11px;padding:11px 14px;font:inherit;cursor:pointer}
+.tab{background:#e9efec;color:#43524d;white-space:nowrap}.tab.active{background:var(--green);color:#fff}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 6px}
+input,select,textarea{width:100%;border:1px solid #dce5e0;border-radius:10px;padding:12px;font:inherit;background:#fff;color:var(--ink)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.primary{background:var(--green);color:white;width:100%;margin-top:14px;font-weight:bold}
+.secondary{background:var(--mint);color:var(--green)}
+.danger{background:#fff0ef;color:var(--red)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.item{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.item:last-child{border-bottom:0}.item small{display:block;color:var(--muted);margin-top:4px}
+.pill{font-size:11px;background:var(--mint);color:var(--green);padding:4px 8px;border-radius:20px}
+.hidden{display:none!important}.empty{text-align:center;color:var(--muted);padding:20px;font-size:13px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:22px}
+@media(min-width:650px){.cards{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header>
+ <div class="top"><div><h1>إدارة مرتبي</h1><p>تابع دخلك ومصروفاتك وادخارك ببساطة</p></div><span class="pill" style="background:#ffffff24;color:white">نسخة أولية</span></div>
+</header>
+<main>
+ <section class="cards">
+  <div class="card"><small>إجمالي الإيرادات</small><div class="amount green" id="incomeTotal">0.00 ج.م</div></div>
+  <div class="card"><small>إجمالي المصروفات</small><div class="amount red" id="expenseTotal">0.00 ج.م</div></div>
+  <div class="card"><small>الرصيد المتبقي</small><div class="amount" id="balanceTotal">0.00 ج.م</div></div>
+  <div class="card"><small>المدخرات المسجلة</small><div class="amount green" id="savingTotal">0.00 ج.م</div></div>
+ </section>
+ <nav class="tabs">
+  <button class="tab active" data-tab="add">إضافة حركة</button>
+  <button class="tab" data-tab="history">سجل الحركات</button>
+  <button class="tab" data-tab="budget">الميزانية</button>
+  <button class="tab" data-tab="backup">النسخ الاحتياطي</button>
+ </nav>
+ <section id="add" class="panel">
+  <h2>تسجيل إيراد أو مصروف</h2>
+  <div class="grid">
+   <div><label>نوع الحركة</label><select id="type"><option value="expense">مصروف</option><option value="income">إيراد</option><option value="saving">ادخار</option></select></div>
+   <div><label>المبلغ بالجنيه</label><input id="amount" type="number" min="0.01" step="0.01" placeholder="مثال: 500"></div>
+  </div>
+  <div class="grid">
+   <div><label>التصنيف</label><select id="category"></select></div>
+   <div><label>التاريخ</label><input id="date" type="date"></div>
+  </div>
+  <label>البيان / ملاحظات</label><input id="note" maxlength="100" placeholder="مثال: مشتريات البيت">
+  <button class="primary" id="save">حفظ الحركة</button>
+ </section>
+ <section id="history" class="panel hidden">
+  <div class="row"><h2>سجل الحركات</h2><select id="filter" style="width:auto"><option value="all">الكل</option><option value="income">الإيرادات</option><option value="expense">المصروفات</option><option value="saving">الادخار</option></select></div>
+  <div id="transactions"></div>
+ </section>
+ <section id="budget" class="panel hidden">
+  <h2>ملخص الشهر الحالي</h2>
+  <div class="row"><span>الشهر</span><strong id="monthLabel"></strong></div>
+  <div class="item"><span>الإيرادات</span><strong class="green" id="mIncome">0</strong></div>
+  <div class="item"><span>المصروفات</span><strong class="red" id="mExpense">0</strong></div>
+  <div class="item"><span>الادخار</span><strong id="mSaving">0</strong></div>
+  <div class="item"><span>الصافي بعد المصروفات والادخار</span><strong id="mNet">0</strong></div>
+  <p style="color:var(--muted);font-size:12px;line-height:1.7">الأرقام محسوبة من الحركات المسجلة في الشهر الحالي. أضف كل حركة أولاً لتحصل على ملخص دقيق.</p>
+ </section>
+ <section id="backup" class="panel hidden">
+  <h2>حفظ ونقل البيانات</h2>
+  <p style="font-size:13px;line-height:1.8;color:var(--muted)">هذه النسخة تحفظ البيانات على نفس الجهاز فقط. استخدم التصدير لنقل نسخة احتياطية، أو استيراد ملف سابق.</p>
+  <button class="primary" id="export">تصدير نسخة احتياطية</button>
+  <label>استيراد نسخة احتياطية بصيغة JSON</label><input id="importFile" type="file" accept="application/json">
+  <button class="secondary" id="clear" style="width:100%;margin-top:12px">مسح جميع البيانات</button>
+  <p id="backupMsg" style="font-size:12px;color:var(--green)"></p>
+ </section>
+</main>
+<footer>إدارة مرتبي · نسخة أولية تجريبية</footer>
+<script>
+const cats={
+ income:["المرتب","مكافأة","دخل إضافي","أخرى"],
+ expense:["البيت","الأكل ومستلزمات المنزل","المدارس","السيارات والمواصلات","الفواتير","العلاج","الملابس","الترفيه","الصدقة","أقساط والتزامات","أخرى"],
+ saving:["ادخار شهري","طوارئ","هدف خاص"]
+};
+let tx=JSON.parse(localStorage.getItem("salary_tx_v1")||"[]");
+const $=id=>document.getElementById(id);
+const money=n=>Number(n||0).toLocaleString("ar-EG",{minimumFractionDigits:2,maximumFractionDigits:2})+" ج.م";
+const today=new Date();$("date").value=today.toISOString().slice(0,10);
+function fillCats(){let t=$("type").value; $("category").innerHTML=cats[t].map(x=>`<option>${x}</option>`).join("")}
+$("type").addEventListener("change",fillCats);fillCats();
+function sums(list){return list.reduce((a,x)=>{a[x.type]+=Number(x.amount);return a},{income:0,expense:0,saving:0})}
+function render(){
+ let s=sums(tx);$("incomeTotal").textContent=money(s.income);$("expenseTotal").textContent=money(s.expense);
+ $("balanceTotal").textContent=money(s.income-s.expense-s.saving);$("savingTotal").textContent=money(s.saving);
+ const ym=today.toISOString().slice(0,7), ms=sums(tx.filter(x=>x.date.startsWith(ym)));
+ $("monthLabel").textContent=ym;$("mIncome").textContent=money(ms.income);$("mExpense").textContent=money(ms.expense);$("mSaving").textContent=money(ms.saving);$("mNet").textContent=money(ms.income-ms.expense-ms.saving);
+ const f=$("filter").value, arr=[...tx].filter(x=>f==="all"||x.type===f).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+ $("transactions").innerHTML=arr.length?arr.map(x=>`<div class="item"><div><strong>${escapeHtml(x.category)}</strong><small>${x.date} · ${escapeHtml(x.note||"بدون ملاحظات")}</small></div><div style="text-align:left;white-space:nowrap"><strong class="${x.type==="income"||x.type==="saving"?"green":"red"}">${x.type==="expense"?"−":"+"}${money(x.amount)}</strong><button class="danger" style="padding:5px 8px;margin-top:5px" onclick="delTx(${x.id})">حذف</button></div></div>`).join(""):'<div class="empty">لا توجد حركات مسجلة حتى الآن</div>';
+ localStorage.setItem("salary_tx_v1",JSON.stringify(tx));
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+window.delTx=id=>{if(confirm("حذف هذه الحركة؟")){tx=tx.filter(x=>x.id!==id);render()}};
+$("save").onclick=()=>{let amount=Number($("amount").value);if(!amount||amount<=0){alert("اكتب مبلغاً صحيحاً");return}
+ tx.push({id:Date.now(),type:$("type").value,amount,category:$("category").value,date:$("date").value,note:$("note").value.trim()});
+ $("amount").value="";$("note").value="";render();alert("تم حفظ الحركة على هذا الجهاز")};
+$("filter").onchange=render;
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));["add","history","budget","backup"].forEach(id=>$(id).classList.toggle("hidden",id!==b.dataset.tab));if(b.dataset.tab==="history")render()});
+$("export").onclick=()=>{let blob=new Blob([JSON.stringify({version:1,transactions:tx},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="نسخة-احتياطية-إدارة-مرتبي.json";a.click();URL.revokeObjectURL(a.href);$("backupMsg").textContent="تم تجهيز ملف النسخة الاحتياطية."};
+$("importFile").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let data=JSON.parse(await f.text());if(!Array.isArray(data.transactions))throw 0;if(confirm("سيتم استبدال الحركات الحالية بالنسخة المستوردة. متابعة؟")){tx=data.transactions;render();$("backupMsg").textContent="تم استيراد البيانات."}}catch{$("backupMsg").textContent="الملف غير صالح."}e.target.value=""};
+$("clear").onclick=()=>{if(confirm("هل أنت متأكد من مسح كل الحركات؟ لا يمكن التراجع.")){tx=[];render();$("backupMsg").textContent="تم مسح البيانات."}};
+render();
+if("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+</script>
+</body></html>
